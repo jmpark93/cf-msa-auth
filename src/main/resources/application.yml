@@ -1,0 +1,37 @@
+server:
+  error:
+    include-stacktrace: never
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:auth
+    username: auth
+    password: koscom
+
+
+security:
+  oauth2:
+    client:
+      client-id: jmworks
+      client-secret: jmworksOauthSecret
+    resource:
+      jwt:
+        key-value: jmworksJwtSecret
+
+auth:
+  app:
+    jwtSecret: secretkey
+    jwtExpirationMs: 86400000
+    swagger:
+      enabled: true
