@@ -3,28 +3,19 @@ package com.jmworks.auth.controller;
 import com.jmworks.auth.domain.Role;
 import com.jmworks.auth.domain.RoleType;
 import com.jmworks.auth.domain.User;
-import com.jmworks.auth.payload.JwtResponse;
-import com.jmworks.auth.payload.LoginRequest;
 import com.jmworks.auth.payload.MessageResponse;
 import com.jmworks.auth.payload.SignupRequest;
 import com.jmworks.auth.repository.RoleRepository;
 import com.jmworks.auth.repository.UserRepository;
-import com.jmworks.auth.security.JwtUtils;
-import com.jmworks.auth.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -43,8 +34,6 @@ public class AuthController {
     @Autowired
     PasswordEncoder encoder;
 
-    @Autowired
-    JwtUtils jwtUtils;
 //
 //    @PostMapping("/signin")
 //    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -103,8 +92,8 @@ public class AuthController {
                         roles.add(adminRole);
 
                         break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName(RoleType.ROLE_MODERATOR)
+                    case "auditor":
+                        Role modRole = roleRepository.findByName(RoleType.ROLE_AUDITOR)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
 
