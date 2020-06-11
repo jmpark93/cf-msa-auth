@@ -26,3 +26,13 @@ config:
     client-id: jmworks
     client-secret: jmworksOauthSecret
     jwt-signkey: jmworksJwtSecret
+
+
+security:
+  oauth2:
+    client:
+      client-id: jmworks
+      client-secret: jmworksOauthSecret
+    resource:
+      jwt:
+        key-value: jmworksJwtSecret
