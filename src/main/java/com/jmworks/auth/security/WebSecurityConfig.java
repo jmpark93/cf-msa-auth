@@ -62,6 +62,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
         }
 
         web.ignoring().antMatchers("/h2-console/**");
+        web.ignoring().antMatchers("/actuator/**");
+
     }
 
     @Override

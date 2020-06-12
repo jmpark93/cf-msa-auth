@@ -1,8 +1,27 @@
 server:
   error:
     include-stacktrace: never
+  port: 9090
 
 spring:
+  application:
+    name: ${vcap.application.application_name:""}
+
+  boot:
+    admin:
+      client:
+        enabled: ${USE_BOOT_ADMIN:false}
+        url: ${BOOT_ADMIN_URL}
+        username: ${BOOT_ADMIN_ID}
+        password: ${BOOT_ADMIN_PWD}
+        instance:
+          service-url: http://${vcap.application.application_uris[0]}
+          metadata:
+            tags:
+              Organization: ${vcap.application.organization_name}
+              Space: ${vcap.application.space_name}
+              APP-INDEX: ${CF_INSTANCE_INDEX}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,6 +38,17 @@ spring:
     username: auth
     password: koscom
 
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 config:
   swagger:
     enabled: true
@@ -26,13 +56,3 @@ config:
     client-id: jmworks
     client-secret: jmworksOauthSecret
     jwt-signkey: jmworksJwtSecret
-
-
-security:
-  oauth2:
-    client:
-      client-id: jmworks
-      client-secret: jmworksOauthSecret
-    resource:
-      jwt:
-        key-value: jmworksJwtSecret
