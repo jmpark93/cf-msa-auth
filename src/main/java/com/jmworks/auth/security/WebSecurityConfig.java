@@ -61,7 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
                             "/swagger/**");
         }
 
-        web.ignoring().antMatchers("/h2-console/**");
+//        web.ignoring().antMatchers("/h2-console/**");
         web.ignoring().antMatchers("/actuator/**");
 
     }

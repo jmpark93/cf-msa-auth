@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,10 @@ public class AuthApplication {
 
     @PostConstruct
     public void init() {
+        Optional<Role> roleUser = roleRepository.findByName(RoleType.ROLE_USER);
+        if ( roleUser.isPresent() )
+            return;
+
         Role userRole = new Role(RoleType.ROLE_USER);
         Role auditRole = new Role(RoleType.ROLE_AUDITOR);
         Role adminRole = new Role(RoleType.ROLE_ADMIN);
@@ -44,7 +49,6 @@ public class AuthApplication {
         roleRepository.save(auditRole);
         roleRepository.save(adminRole);
 
-        // Create new user's account
         User adminUser = new User("admin", "admin@admin.com", encoder.encode("kosgov"));
         User normalUser = new User("jmpark93", "jmpark93@gmail.com", encoder.encode("koscom"));
 
@@ -62,13 +66,13 @@ public class AuthApplication {
         userRepository.save(adminUser);
         userRepository.save(normalUser);
 
-        String userName = "admin";
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        System.out.println(">>> User Name : " +  userName + ", Roles : " + roles);
+//        String userName = "admin";
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+//        List<String> roles = userDetails.getAuthorities().stream()
+//                .map(item -> item.getAuthority())
+//                .collect(Collectors.toList());
+//
+//        System.out.println(">>> User Name : " +  userName + ", Roles : " + roles);
     }
 
     public static void main(String[] args) {

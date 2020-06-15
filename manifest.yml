@@ -8,7 +8,6 @@ applications:
     path: ./build/libs/auth-0.0.1-SNAPSHOT.jar
     env:
       JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 11.+}}'
-#      JBP_CONFIG_SPRING_AUTO_RECONFIGURATION : '{ enabled: false }'
       SPRING_PROFILES_ACTIVE: dev
     routes:
       - route: msa-auth.kpaasta.io
