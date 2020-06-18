@@ -24,10 +24,10 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${config.oauth2.client-id}")
+    @Value("${config.oauth2.clientId}")
     private String clientId;
 
-    @Value("${config.oauth2.client-secret}")
+    @Value("${config.oauth2.clientSecret}")
     private String clientSecret;
 
     @Value("${config.oauth2.jwt-signkey}")

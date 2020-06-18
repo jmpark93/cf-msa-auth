@@ -50,9 +50,9 @@ spring:
 #    password: koscom
 
 config:
+  oauth2:
+    clientId: jmworks
+    clientSecret: jmworksOauthSecret
+    jwt-signkey: jmworksJwtSecret
   swagger:
     enabled: true
-  oauth2:
-    client-id: jmworks
-    client-secret: jmworksOauthSecret
-    jwt-signkey: jmworksJwtSecret
