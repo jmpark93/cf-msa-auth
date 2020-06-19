@@ -33,6 +33,7 @@ dependencies {
     implementation 'de.codecentric:spring-boot-admin-starter-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
+    compile group: 'org.json', name: 'json', version: '20200518'
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
     compile group: 'org.jolokia', name: 'jolokia-core', version: '1.6.2'

@@ -1,33 +1,33 @@
 package com.jmworks.auth.controller;
 
-import antlr.build.Tool;
 import com.jmworks.auth.domain.Role;
 import com.jmworks.auth.domain.RoleType;
 import com.jmworks.auth.domain.User;
+import com.jmworks.auth.payload.JwtResponse;
 import com.jmworks.auth.payload.LoginRequest;
 import com.jmworks.auth.payload.MessageResponse;
 import com.jmworks.auth.payload.SignupRequest;
 import com.jmworks.auth.repository.RoleRepository;
 import com.jmworks.auth.repository.UserRepository;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
-import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -44,6 +44,9 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @Autowired
+    JwtTokenStore jwtTokenStore;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -55,22 +58,53 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        // header : Content-Type, application/x-www-form-urlencoded
-        // header : authorization, Basic Auth -- client id / secret
-//        curl "http://localhost:8081/oauth/token" \
-//        -X POST \
-//        -d "grant_type=password&username=jmpark93&password=koscom" \
-//        -H "Content-Type: application/x-www-form-urlencoded" \
-//        -H "cookie: JSESSIONID=7AD384DA855C0A0E0DD32B5ECB6B3A92" \
-//        -H "authorization: Basic am13b3JrczpqbXdvcmtzT2F1dGhTZWNyZXQ=" \
-//        -H "content-length: 53"
-//        ...
-          return (ResponseEntity<?>) ResponseEntity.ok();
-//        return ResponseEntity.ok(new JwtResponse(jwt,
-//                userDetails.getId(),
-//                userDetails.getUsername(),
-//                userDetails.getEmail(),
-//                roles));
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setBasicAuth(clientId, clientSecret);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+
+        map.add("grant_type", "password");
+        map.add("username", loginRequest.getUsername());
+        map.add("password", loginRequest.getPassword());
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<String> response = null;
+
+        try {
+            response =
+                    restTemplate.exchange("http://localhost:8081/oauth/token",
+                            HttpMethod.POST,
+                            entity,
+                            String.class);
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body( e.getResponseBodyAsString() ) ;
+        }
+
+        JSONObject jsonObject = new JSONObject(response.getBody());
+
+//        System.out.println(jsonObject.getString("access_token"));
+
+        OAuth2Authentication auth = jwtTokenStore.readAuthentication(jsonObject.getString("access_token"));
+
+        List<String> roles = auth.getUserAuthentication().getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+//        System.out.println(roles);
+//        System.out.println(auth.getUserAuthentication().getName());
+
+        return ResponseEntity.ok(new JwtResponse(
+                jsonObject.getString("access_token"),
+                jsonObject.getLong("user_id"),
+                loginRequest.getUsername(),
+                "",
+                roles));
     }
 
     @PostMapping("/signup")
@@ -80,12 +114,6 @@ public class AuthController {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
-        }
-
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
