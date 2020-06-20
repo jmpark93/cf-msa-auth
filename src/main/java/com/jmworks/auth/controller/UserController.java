@@ -18,5 +18,12 @@ public class UserController {
 
         return "사용자 상세정보 조회 ... " + userId;
     }
+
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String getUserList() {
+
+        return "관리자 : 사용자 목록 조회 ... ";
+    }
 }
 

@@ -21,8 +21,9 @@ import java.util.List;
 public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
     private final AuthenticationManager authenticationManager;
-
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenStore jwtTokenStore;
+    private final JwtAccessTokenConverter jwtAccessTokenConverter;
 
     @Value("${config.oauth2.clientId}")
     private String clientId;
@@ -30,18 +31,26 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     @Value("${config.oauth2.clientSecret}")
     private String clientSecret;
 
-    @Value("${config.oauth2.jwt-signkey}")
-    private String signKey;
+    public AuthServerConfig(AuthenticationManager authenticationManager,
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenStore jwtTokenStore,
+                            JwtAccessTokenConverter jwtAccessTokenConverter) {
 
-    public AuthServerConfig(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenStore = jwtTokenStore;
+        this.jwtAccessTokenConverter = jwtAccessTokenConverter;
+
     }
 
-    @Override
-    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
-    }
+// allow policy for /oauth/check_token & /oauth/token_key
+//    @Override
+//    public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+//    1) security.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
+//
+//    2) security.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')")
+//                .checkTokenAccess("hasAuthority('ROLE_TRUSTED_CLIENT')");
+//    }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -57,24 +66,12 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     public void configure(AuthorizationServerEndpointsConfigurer endpoints)
             throws Exception {
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-        tokenEnhancerChain.setTokenEnhancers(List.of(new CustomTokenEnhancer(), jwtAccessTokenConverter()));
+        tokenEnhancerChain.setTokenEnhancers(List.of(new CustomTokenEnhancer(), jwtAccessTokenConverter));
 
         endpoints.authenticationManager(authenticationManager)
                 .tokenEnhancer(tokenEnhancerChain)
-                .accessTokenConverter(jwtAccessTokenConverter())
-                .tokenStore(tokenStore());
+                .accessTokenConverter(jwtAccessTokenConverter)
+                .tokenStore(jwtTokenStore);
     }
 
-    @Bean
-    public JwtTokenStore tokenStore() {
-        return new JwtTokenStore(jwtAccessTokenConverter());
-    }
-
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        JwtAccessTokenConverter accessTokenConverter = new JwtAccessTokenConverter();
-        accessTokenConverter.setSigningKey(signKey);
-
-        return accessTokenConverter;
-    }
 }
