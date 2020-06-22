@@ -39,7 +39,7 @@ public class AuthController {
 
     @Value("${config.oauth2.clientSecret}")
     private String clientSecret;
-    
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -83,7 +83,7 @@ public class AuthController {
                             String.class);
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(e.getStatusCode())
-                    .body( e.getResponseBodyAsString() ) ;
+                    .body(e.getResponseBodyAsString());
         }
 
         JSONObject jsonObject = new JSONObject(response.getBody());
