@@ -103,7 +103,7 @@ public class AuthController {
                 jsonObject.getString("access_token"),
                 jsonObject.getLong("user_id"),
                 loginRequest.getUsername(),
-                "",
+                jsonObject.getString("user_email"),
                 roles));
     }
 
