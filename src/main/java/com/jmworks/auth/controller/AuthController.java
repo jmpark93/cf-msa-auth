@@ -40,6 +40,9 @@ public class AuthController {
     @Value("${config.oauth2.clientSecret}")
     private String clientSecret;
 
+    @Value("${config.oauth2.url}")
+    private String oauthURL;
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -77,7 +80,7 @@ public class AuthController {
 
         try {
             response =
-                    restTemplate.exchange("http://localhost:8081/oauth/token",
+                    restTemplate.exchange(oauthURL,
                             HttpMethod.POST,
                             entity,
                             String.class);

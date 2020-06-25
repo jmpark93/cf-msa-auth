@@ -51,6 +51,7 @@ spring:
 
 config:
   oauth2:
+    url: http://localhost:8081/oauth/token
     clientId: jmworks
     clientSecret: jmworksOauthSecret
     jwt-signkey: jmworksJwtSecret
